@@ -1,0 +1,88 @@
+body {
+	--bg: hsl(0, 0%, 95%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin: 0;
+	min-height: 100vh;
+	background-color: var(--bg);
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+.board,
+.board .container {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-rows: 1fr 1fr 1fr;
+	gap: 5px;
+	background-color: black;
+}
+.board {
+	--s: min(90vw, 90vh);
+	width: var(--s);
+	height: var(--s);
+}
+.container {
+	width: 80%;
+	height: 80%;
+	transition: opacity 150ms;
+}
+.big,
+.small {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: var(--bg);
+}
+.big::before {
+	content: '';
+	display: inline-block;
+	position: absolute;
+	width: 90%;
+	height: 90%;
+	border-radius: 0.5rem;
+	background-color: rgba(255, 0, 0, 0.3);
+	z-index: 1;
+	transition: opacity 150ms;
+}
+.big[data-enabled]::before {
+	opacity: 0;
+}
+.big:not([data-enabled]) .container {
+	opacity: 0.2;
+}
+
+/*
+Text needs to translated up as font isn't centered vertically
+Feels hacky, might switch to using images
+*/
+:is(.big, .small)[data-mark]::after {
+	position: absolute;
+	top: 50%;
+	line-height: 0;
+	translate: 0 -0.3rem;
+	font-family: Arial, sans-serif;
+}
+:is(.big, .small)[data-mark='x']::after {
+	font-size: 3rem;
+	content: '\2A2F';
+	color: red;
+}
+:is(.big, .small)[data-mark='o']::after {
+	font-size: 5rem;
+	content: '\25CB';
+	color: blue;
+}
+.big[data-mark='x']::after {
+	font-size: 10rem;
+	translate: 0 -0.4rem;
+}
+.big[data-mark='o']::after {
+	font-size: 16rem;
+	translate: 0 -0.8rem;
+}
+.big[data-mark] .container {
+	opacity: 0.2;
+}
