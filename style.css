@@ -29,6 +29,13 @@ body {
 	transition: opacity 150ms;
 }
 .big,
+.container {
+	pointer-events: none;
+}
+.small {
+	pointer-events: all;
+}
+.big,
 .small {
 	position: relative;
 	display: flex;
@@ -46,9 +53,11 @@ body {
 	background-color: rgba(255, 0, 0, 0.3);
 	z-index: 1;
 	transition: opacity 150ms;
+	pointer-events: all;
 }
 .big[data-enabled]::before {
 	opacity: 0;
+	pointer-events: none;
 }
 .big:not([data-enabled]) .container {
 	opacity: 0.2;
@@ -64,6 +73,7 @@ Feels hacky, might switch to using images
 	line-height: 0;
 	translate: 0 -0.3rem;
 	font-family: Arial, sans-serif;
+	pointer-events: all;
 }
 :is(.big, .small)[data-mark='x']::after {
 	font-size: 3rem;
