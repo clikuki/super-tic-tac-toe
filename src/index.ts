@@ -34,20 +34,20 @@ const winLines = [
 	[2, 4, 6],
 ];
 
-function getBoardWinner(board: string[]): null | PLAYER {
-	for (const [i, j, k] of winLines) {
-		const a = board[i];
-		const b = board[j];
-		const c = board[k];
+function getBoardWinner(board: string[]): null | [PLAYER, number] {
+	for (let i = 0; i < winLines.length; i++) {
+		const a = board[winLines[i][0]];
+		const b = board[winLines[i][1]];
+		const c = board[winLines[i][2]];
 		if (a && a === b && a === c) {
-			return a as PLAYER;
+			return [a as PLAYER, i];
 		}
 	}
 
 	return null;
 }
 
-function getOuterBoardState(changed?: number): GAME_STATES {
+function getOuterBoardState(changed?: number): [GAME_STATES, number] {
 	const winTable: string[] = [];
 	const path = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 	if (changed !== undefined) {
@@ -56,16 +56,16 @@ function getOuterBoardState(changed?: number): GAME_STATES {
 
 	for (const i of path) {
 		const innerWinner = getBoardWinner(board[i]);
-		if (innerWinner) winTable[i] = innerWinner;
+		if (innerWinner) [winTable[i]] = innerWinner;
 		else if (i === changed) {
 			// Escape early since no changes
-			return isBoardDraw(winTable) ? 'DRAW' : 'PLAY';
+			return [isBoardDraw(winTable) ? 'DRAW' : 'PLAY', NaN];
 		}
 	}
 
 	const outerWinner = getBoardWinner(winTable);
 	if (outerWinner) return outerWinner;
-	return isBoardDraw(winTable) ? 'DRAW' : 'PLAY';
+	return [isBoardDraw(winTable) ? 'DRAW' : 'PLAY', NaN];
 }
 
 function isBoardDraw(board: string[]): boolean {
@@ -93,6 +93,7 @@ innerTileEls.forEach((innerTiles, i) => {
 	innerTiles.forEach((innerEl, j) => {
 		innerEl.addEventListener('click', () => {
 			if (
+				gameState !== 'PLAY' ||
 				(isNaN(mustPlayAt) && ignoredBoardIndices.has(i)) ||
 				(!isNaN(mustPlayAt) && i !== mustPlayAt)
 			) {
@@ -104,7 +105,11 @@ innerTileEls.forEach((innerTiles, i) => {
 
 			const innerWinner = getBoardWinner(board[i]);
 			if (innerWinner) {
-				outerTileEls[i].setAttribute('data-mark', innerWinner);
+				outerTileEls[i].setAttribute('data-mark', innerWinner[0]);
+				outerTileEls[i].firstElementChild!.setAttribute(
+					'data-stroke',
+					String(innerWinner[1]),
+				);
 			}
 			if (innerWinner || isBoardDraw(board[i])) {
 				outerTileEls[i].removeAttribute('data-enabled');
@@ -125,7 +130,11 @@ innerTileEls.forEach((innerTiles, i) => {
 				outerTileEls[j].setAttribute('data-enabled', '');
 			}
 
-			gameState = getOuterBoardState(i);
+			let stroke;
+			[gameState, stroke] = getOuterBoardState(i);
+			if (gameState === PLAYER.FIRST || gameState === PLAYER.LAST) {
+				boardEl.setAttribute('data-stroke', String(stroke));
+			}
 		});
 	});
 });

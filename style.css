@@ -1,3 +1,9 @@
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 body {
 	--bg: hsl(0, 0%, 95%);
 	display: flex;
@@ -10,12 +16,15 @@ body {
 		Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* || Board display */
 .board,
 .board .container {
+	--gap: 5px;
+	position: relative;
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	grid-template-rows: 1fr 1fr 1fr;
-	gap: 5px;
+	gap: var(--gap);
 	background-color: black;
 }
 .board {
@@ -63,7 +72,7 @@ body {
 	opacity: 0.2;
 }
 
-/*
+/* || Player Mark
 Text needs to translated up as font isn't centered vertically
 Feels hacky, might switch to using images
 */
@@ -95,4 +104,56 @@ Feels hacky, might switch to using images
 }
 .big[data-mark] .container {
 	opacity: 0.2;
+}
+
+/* || Win stroke */
+.board[data-stroke]::after {
+	--thickness: 20px;
+	z-index: 3;
+}
+:where(.board, .container)[data-stroke]::after {
+	--thickness: 7px;
+	--cell-size: calc((100% - var(--gap) * 2) / 3);
+	--cell-center: calc(var(--cell-size) / 2 - var(--thickness) / 2);
+	content: '';
+	display: inline-block;
+	position: absolute;
+	top: var(--cell-center);
+	left: var(--cell-center);
+	height: var(--thickness);
+	width: calc(100% / 3 * 2 + var(--thickness));
+	background-color: black;
+	border: 2px solid white;
+	border-radius: var(--thickness);
+	transform-origin: left bottom;
+}
+:is(.board, .container)[data-stroke='1']::after {
+	top: calc(var(--cell-size) + var(--gap) + var(--cell-center));
+}
+:is(.board, .container):is([data-stroke='2'], [data-stroke='7'])::after {
+	top: calc((var(--cell-size) + var(--gap)) * 2 + var(--cell-center));
+}
+:is(.board, .container):is(
+		[data-stroke='3'],
+		[data-stroke='4'],
+		[data-stroke='5']
+	)::after {
+	rotate: 90deg;
+	translate: 0 calc(-1 * var(--thickness));
+}
+:is(.board, .container)[data-stroke='4']::after {
+	left: calc(var(--cell-size) + var(--gap) + var(--cell-center));
+}
+:is(.board, .container)[data-stroke='5']::after {
+	left: calc((var(--cell-size) + var(--gap)) * 2 + var(--cell-center));
+}
+:is(.board, .container)[data-stroke='6']::after {
+	rotate: 45deg;
+	width: calc((99 / 70) * (100% / 3 * 2 + var(--gap)));
+	/* hypotenuse of 45-45-90 triangle */
+}
+:is(.board, .container)[data-stroke='7']::after {
+	rotate: -45deg;
+	width: calc((99 / 70) * (100% / 3 * 2 + var(--gap)));
+	translate: var(--thickness);
 }
